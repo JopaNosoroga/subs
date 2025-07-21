@@ -1,0 +1,146 @@
+definitions:
+    errorResponse:
+        description: ErrorResponse представляет модель ошибки API
+        properties:
+            code:
+                description: HTTP статус код
+                example: 500
+                format: int64
+                type: integer
+                x-go-name: Code
+            message:
+                description: Сообщение об ошибке
+                example: Ошибка сервера
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-name: ErrorResponse
+        x-go-package: subscriptions/pkg/models
+    subscription:
+        description: Subscriptions представляет модель подписки пользователя
+        properties:
+            all:
+                description: Флаг для запроса всех подписок (используется только в запросах)
+                type: boolean
+                x-go-name: All
+            end_date:
+                description: Дата окончания подписки (RFC3339)
+                example: "2023-02-15T00:00:00Z"
+                format: date-time
+                type: string
+                x-go-name: EndDate
+            id:
+                description: Идентификатор подписки
+                format: int64
+                type: integer
+                x-go-name: ID
+            price:
+                description: Стоимость подписки (в копейках/центах)
+                example: 1000
+                format: int64
+                type: integer
+                x-go-name: Price
+            service_name:
+                description: Название сервиса подписки
+                example: Netflix
+                type: string
+                x-go-name: ServiceName
+            start_date:
+                description: Дата начала подписки (RFC3339)
+                example: "2023-01-15T00:00:00Z"
+                format: date-time
+                type: string
+                x-go-name: StartDate
+            user_id:
+                description: UUID пользователя (формат uuidv4)
+                example: 123e4567-e89b-12d3-a456-426614174000
+                format: uuid
+                type: string
+                x-go-name: UserID
+        type: object
+        x-go-name: Subscriptions
+        x-go-package: subscriptions/pkg/models
+paths:
+    /subscriptions:
+        get:
+            description: Возвращает список подписок с возможностью фильтрации
+            operationId: listSubscriptions
+            parameters:
+                - $ref: '#/definitions/subscription'
+                  description: Параметры фильтрации (все поля опциональны)
+                  in: body
+                  name: body
+            summary: Получить список подписок
+            tags:
+                - subscriptions
+        post:
+            description: Добавляет новую подписку в систему
+            operationId: createSubscription
+            parameters:
+                - $ref: '#/definitions/subscription'
+                  description: Данные подписки
+                  in: body
+                  name: body
+                  required: true
+            summary: Создать новую подписку
+            tags:
+                - subscriptions
+    /subscriptions/{id}:
+        delete:
+            description: Удаляет подписку по идентификатору
+            operationId: deleteSubscription
+            parameters:
+                - description: ID подписки
+                  format: int64
+                  in: path
+                  name: id
+                  required: true
+                  type: integer
+            summary: Удалить подписку
+            tags:
+                - subscriptions
+        get:
+            description: Возвращает информацию о конкретной подписке
+            operationId: getSubscription
+            parameters:
+                - description: ID подписки
+                  format: int64
+                  in: path
+                  name: id
+                  required: true
+                  type: integer
+            summary: Получить информацию о подписке
+            tags:
+                - subscriptions
+        put:
+            description: Обновляет данные существующей подписки
+            operationId: updateSubscription
+            parameters:
+                - description: ID подписки
+                  format: int64
+                  in: path
+                  name: id
+                  required: true
+                  type: integer
+                - $ref: '#/definitions/subscription'
+                  description: Обновленные данные подписки
+                  in: body
+                  name: body
+                  required: true
+            summary: Обновить подписку
+            tags:
+                - subscriptions
+    /sum:
+        post:
+            description: Возвращает сумму цен активных подписок за указанный период
+            operationId: calculatePrice
+            parameters:
+                - $ref: '#/definitions/subscription'
+                  description: Параметры расчета (обязательны start_date и end_date)
+                  in: body
+                  name: body
+                  required: true
+            summary: Рассчитать стоимость подписок
+            tags:
+                - subscriptions
+swagger: "2.0"
